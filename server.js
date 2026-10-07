@@ -3,7 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get('/postcode', (req, res) => {
-  const { appName, tableName } = req.query;
+  const { appId, appName, tableName } = req.query;
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -18,6 +18,7 @@ app.get('/postcode', (req, res) => {
     <div id="layer" style="width:100vw; height:100vh;"></div>
 
     <script>
+        const appId = "${appId || ''}";
         const appName = "${appName || ''}";
         const tableName = "${tableName || ''}";
 
@@ -26,14 +27,15 @@ app.get('/postcode', (req, res) => {
                 const zonecode = data.zonecode;
                 const roadAddress = data.roadAddress;
 
-                if (appName && tableName) {
+                if (tableName) {
                     const defaults = encodeURIComponent(JSON.stringify({
                         "우편번호": zonecode,
                         "도로명주소": roadAddress
                     }));
                     
-                    // AppSheet 표준 딥링크 리다이렉트
-                    const redirectUrl = "https://www.appsheet.com/start?appName=" + encodeURIComponent(appName) + 
+                    // AppSheet 공식 표준 URL 리다이렉트 (404 완벽 방지)
+                    let targetApp = appId ? appId : encodeURIComponent(appName);
+                    const redirectUrl = "https://www.appsheet.com/start/" + targetApp +
                         "#control=" + encodeURIComponent(tableName + "_Form") +
                         "&defaults=" + defaults;
 
