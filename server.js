@@ -19,6 +19,11 @@ const TABLE_CONFIG = {
     keyColumn: "건물자산ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명 (필요 시 수정)
     zipColumn: "우편번호",     // Assets_Bldgs의 우편번호 컬럼명
     addrColumn: "도로명주소"   // Assets_Bldgs의 도로명주소 컬럼명
+  },
+  "Tax_Agents": {
+    keyColumn: "대리인ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명 (필요 시 수정)
+    zipColumn: "우편번호",     // Assets_Bldgs의 우편번호 컬럼명
+    addrColumn: "도로명주소"   // Assets_Bldgs의 도로명주소 컬럼명
   }
 };
 
