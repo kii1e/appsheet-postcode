@@ -16,7 +16,7 @@ const TABLE_CONFIG = {
     addrColumn: "도로명주소"
   },
   "Assets_Bldgs": {
-    keyColumn: "건물ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명으로 확인 후 맞춰주세요 (예: ID, 건물ID 등)
+    keyColumn: "건물자산ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명으로 확인 후 맞춰주세요 (예: ID, 건물ID 등)
     zipColumn: "우편번호",     // Assets_Bldgs의 우편번호 컬럼명
     addrColumn: "도로명주소"   // Assets_Bldgs의 도로명주소 컬럼명
   }
