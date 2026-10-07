@@ -8,7 +8,7 @@ app.use(express.json());
 const APPSHEET_APP_ID = "af15afd1-f6e6-4366-bf1e-42bab5c122b4";
 const APPSHEET_ACCESS_KEY = "V2-tOZEG-FrqgF-6yxwM-8j9Xw-mzCpO-G8cuH-7ghgx-afHse";
 
-// 테이블별 Key 컬럼명 및 주소 컬럼 설정 매핑
+// 테이블별 Key 컬럼명 및 주소 컬럼 설정
 const TABLE_CONFIG = {
   "Person_Master": {
     keyColumn: "개인ID",        // Person_Master의 Key 컬럼명
@@ -16,7 +16,7 @@ const TABLE_CONFIG = {
     addrColumn: "도로명주소"
   },
   "Assets_Bldgs": {
-    keyColumn: "건물자산ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명으로 확인 후 맞춰주세요 (예: ID, 건물ID 등)
+    keyColumn: "건물자산ID",        // ★ Assets_Bldgs의 실제 Key 컬럼명 (필요 시 수정)
     zipColumn: "우편번호",     // Assets_Bldgs의 우편번호 컬럼명
     addrColumn: "도로명주소"   // Assets_Bldgs의 도로명주소 컬럼명
   }
@@ -46,7 +46,7 @@ app.get('/postcode', (req, res) => {
                 const tableName = "${tableName || ''}";
 
                 if (rowId) {
-                    // 기존 데이터 수정: API 호출 후 Detail 뷰로 이동
+                    // 기존 데이터 수정: API 호출 후 해당 테이블의 Detail 뷰로 복귀
                     fetch('/update-address', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ app.get('/postcode', (req, res) => {
                         window.location.href = "https://www.appsheet.com/start/${APPSHEET_APP_ID}#control=" + tableName + "_Detail&row=" + encodeURIComponent(rowId);
                     });
                 } else {
-                    // 신규 작성: 기존 defaults 방식 유지
+                    // 신규 작성: defaults 파라미터 전달
                     const defaults = encodeURIComponent(JSON.stringify({
                         "우편번호": zonecode,
                         "도로명주소": roadAddress
@@ -72,18 +72,16 @@ app.get('/postcode', (req, res) => {
   res.send(htmlContent);
 });
 
-// AppSheet DB 직접 업데이트 API
+// AppSheet DB 업데이트 라우트
 app.post('/update-address', async (req, res) => {
   const { tableName, rowId, zonecode, roadAddress } = req.body;
 
-  // 테이블별 설정 정보 불러오기 (설정이 없으면 기본값 적용)
   const config = TABLE_CONFIG[tableName] || {
     keyColumn: "ID",
     zipColumn: "우편번호",
     addrColumn: "도로명주소"
   };
 
-  // 요청 데이터 구성
   const updateRowData = {};
   updateRowData[config.keyColumn] = rowId;
   updateRowData[config.zipColumn] = zonecode;
@@ -99,7 +97,7 @@ app.post('/update-address', async (req, res) => {
     });
     res.sendStatus(200);
   } catch (err) {
-    console.error("AppSheet API 호출 에러:", err.response ? err.response.data : err.message);
+    console.error("AppSheet API Error:", err.response ? err.response.data : err.message);
     res.sendStatus(500);
   }
 });
