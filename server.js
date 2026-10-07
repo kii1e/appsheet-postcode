@@ -27,34 +27,24 @@ app.get('/postcode', (req, res) => {
             oncomplete: function(data) {
                 const zonecode = data.zonecode;
                 const roadAddress = data.roadAddress;
+                const targetApp = appId || encodeURIComponent(appName);
 
-                if (tableName) {
-                    const defaults = encodeURIComponent(JSON.stringify({
-                        "우편번호": zonecode,
-                        "도로명주소": roadAddress
-                    }));
-                    
-                    const targetApp = appId || encodeURIComponent(appName);
-                    let redirectUrl = "";
+                // 우편번호 및 도로명주소 defaults 객체 생성
+                const defaults = encodeURIComponent(JSON.stringify({
+                    "우편번호": zonecode,
+                    "도로명주소": roadAddress
+                }));
 
-                    if (rowId) {
-                        // 기존 데이터 수정(Edit Form)으로 복귀하는 딥링크 구조
-                        redirectUrl = "https://www.appsheet.com/start/" + targetApp +
-                            "#control=" + encodeURIComponent(tableName + "_Form") +
-                            "&row=" + encodeURIComponent(rowId) +
-                            "&defaults=" + defaults +
-                            "&action=edit";
-                    } else {
-                        // 신규 데이터 입력(New Form)으로 복귀하는 딥링크 구조
-                        redirectUrl = "https://www.appsheet.com/start/" + targetApp +
-                            "#control=" + encodeURIComponent(tableName + "_Form") +
-                            "&defaults=" + defaults;
-                    }
+                let redirectUrl = "https://www.appsheet.com/start/" + targetApp +
+                    "#control=" + encodeURIComponent(tableName + "_Form") +
+                    "&defaults=" + defaults;
 
-                    window.location.href = redirectUrl;
-                } else {
-                    alert("우편번호: " + zonecode + "\\n도로명주소: " + roadAddress);
+                // 기존 행 수정 시 row 파라미터 추가
+                if (rowId) {
+                    redirectUrl += "&row=" + encodeURIComponent(rowId);
                 }
+
+                window.location.href = redirectUrl;
             },
             width : '100%',
             height : '100%'
