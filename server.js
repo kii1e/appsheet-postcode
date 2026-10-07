@@ -3,7 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get('/postcode', (req, res) => {
-  const { appId, appName, tableName } = req.query;
+  const { appId, appName, tableName, rowId } = req.query;
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -21,6 +21,7 @@ app.get('/postcode', (req, res) => {
         const appId = "${appId || ''}";
         const appName = "${appName || ''}";
         const tableName = "${tableName || ''}";
+        const rowId = "${rowId || ''}";
 
         new daum.Postcode({
             oncomplete: function(data) {
@@ -33,11 +34,16 @@ app.get('/postcode', (req, res) => {
                         "도로명주소": roadAddress
                     }));
                     
-                    // 보내주신 AppSheet 앱 ID(GUID) 기준 딥링크 생성
                     const targetApp = appId || encodeURIComponent(appName);
-                    const redirectUrl = "https://www.appsheet.com/start/" + targetApp +
+                    
+                    // rowId가 있으면 기존 데이터 수정(Edit), 없으면 신규 작성
+                    let redirectUrl = "https://www.appsheet.com/start/" + targetApp +
                         "#control=" + encodeURIComponent(tableName + "_Form") +
                         "&defaults=" + defaults;
+
+                    if (rowId) {
+                        redirectUrl += "&row=" + encodeURIComponent(rowId);
+                    }
 
                     window.location.href = redirectUrl;
                 } else {
