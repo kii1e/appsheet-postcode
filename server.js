@@ -33,8 +33,8 @@ app.get('/postcode', (req, res) => {
                         "도로명주소": roadAddress
                     }));
                     
-                    // AppSheet 공식 표준 URL 리다이렉트 (404 완벽 방지)
-                    let targetApp = appId ? appId : encodeURIComponent(appName);
+                    // 보내주신 AppSheet 앱 ID(GUID) 기준 딥링크 생성
+                    const targetApp = appId || encodeURIComponent(appName);
                     const redirectUrl = "https://www.appsheet.com/start/" + targetApp +
                         "#control=" + encodeURIComponent(tableName + "_Form") +
                         "&defaults=" + defaults;
