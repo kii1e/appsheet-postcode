@@ -32,7 +32,7 @@ app.get('/postcode', (req, res) => {
                         "도로명주소": roadAddress
                     }));
                     
-                    // AppSheet 표준 딥링크 형식
+                    // AppSheet 표준 딥링크 리다이렉트
                     const redirectUrl = "https://www.appsheet.com/start?appName=" + encodeURIComponent(appName) + 
                         "#control=" + encodeURIComponent(tableName + "_Form") +
                         "&defaults=" + defaults;
