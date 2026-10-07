@@ -35,14 +35,20 @@ app.get('/postcode', (req, res) => {
                     }));
                     
                     const targetApp = appId || encodeURIComponent(appName);
-                    
-                    // rowId가 있으면 기존 데이터 수정(Edit), 없으면 신규 작성
-                    let redirectUrl = "https://www.appsheet.com/start/" + targetApp +
-                        "#control=" + encodeURIComponent(tableName + "_Form") +
-                        "&defaults=" + defaults;
+                    let redirectUrl = "";
 
                     if (rowId) {
-                        redirectUrl += "&row=" + encodeURIComponent(rowId);
+                        // 기존 데이터 수정(Edit Form)으로 복귀하는 딥링크 구조
+                        redirectUrl = "https://www.appsheet.com/start/" + targetApp +
+                            "#control=" + encodeURIComponent(tableName + "_Form") +
+                            "&row=" + encodeURIComponent(rowId) +
+                            "&defaults=" + defaults +
+                            "&action=edit";
+                    } else {
+                        // 신규 데이터 입력(New Form)으로 복귀하는 딥링크 구조
+                        redirectUrl = "https://www.appsheet.com/start/" + targetApp +
+                            "#control=" + encodeURIComponent(tableName + "_Form") +
+                            "&defaults=" + defaults;
                     }
 
                     window.location.href = redirectUrl;
