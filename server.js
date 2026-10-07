@@ -1,9 +1,14 @@
 const express = require('express');
+const axios = require('axios'); // npm install axios 필요
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/postcode', (req, res) => {
-  const { appId, appName, tableName, rowId } = req.query;
+// AppSheet API 설정
+const APPSHEET_APP_ID = "af15afd1-f6e6-4366-bf1e-42bab5c122b4";
+const APPSHEET_ACCESS_KEY = "여기에_발급받은_AppSheet_Access_Key_입력";
+
+app.get('/postcode', async (req, res) => {
+  const { tableName, rowId } = req.query;
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -18,33 +23,28 @@ app.get('/postcode', (req, res) => {
     <div id="layer" style="width:100vw; height:100vh;"></div>
 
     <script>
-        const appId = "${appId || ''}";
-        const appName = "${appName || ''}";
-        const tableName = "${tableName || ''}";
-        const rowId = "${rowId || ''}";
-
         new daum.Postcode({
             oncomplete: function(data) {
                 const zonecode = data.zonecode;
                 const roadAddress = data.roadAddress;
-                const targetApp = appId || encodeURIComponent(appName);
 
-                // 우편번호 및 도로명주소 defaults 객체 생성
-                const defaults = encodeURIComponent(JSON.stringify({
-                    "우편번호": zonecode,
-                    "도로명주소": roadAddress
-                }));
-
-                let redirectUrl = "https://www.appsheet.com/start/" + targetApp +
-                    "#control=" + encodeURIComponent(tableName + "_Form") +
-                    "&defaults=" + defaults;
-
-                // 기존 행 수정 시 row 파라미터 추가
-                if (rowId) {
-                    redirectUrl += "&row=" + encodeURIComponent(rowId);
-                }
-
-                window.location.href = redirectUrl;
+                // 서버로 주소 업데이트 요청 전송
+                fetch('/update-address', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tableName: "${tableName || ''}",
+                        rowId: "${rowId || ''}",
+                        zonecode: zonecode,
+                        roadAddress: roadAddress
+                    })
+                }).then(() => {
+                    // DB 직접 업데이트 후 AppSheet 해당 행의 상세화면/수정화면으로 이동
+                    const redirectUrl = "https://www.appsheet.com/start/${APPSHEET_APP_ID}" +
+                        "#control=${tableName || ''}_Detail" +
+                        "&row=" + encodeURIComponent("${rowId || ''}");
+                    window.location.href = redirectUrl;
+                });
             },
             width : '100%',
             height : '100%'
@@ -57,6 +57,31 @@ app.get('/postcode', (req, res) => {
   res.send(htmlContent);
 });
 
-app.listen(PORT, () => {
-  console.log(`Address server running on port ${PORT}`);
+// AppSheet DB 직접 수정 API 라우트
+app.use(express.json());
+app.post('/update-address', async (req, res) => {
+  const { tableName, rowId, zonecode, roadAddress } = req.body;
+
+  if (rowId && tableName) {
+    try {
+      await axios.post(`https://api.appsheet.com/api/v2/apps/${APPSHEET_APP_ID}/tables/${tableName}/Action`, {
+        Action: "Edit",
+        Properties: { Locale: "ko-KR" },
+        Rows: [
+          {
+            "Key컬럼명": rowId, // Person_Master의 Key 컬럼 이름으로 변경 (예: ID)
+            "우편번호": zonecode,
+            "도로명주소": roadAddress
+          }
+        ]
+      }, {
+        headers: { ApplicationAccessKey: APPSHEET_ACCESS_KEY }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  res.sendStatus(200);
 });
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
