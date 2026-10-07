@@ -1,0 +1,12 @@
+{
+  "name": "appsheet-postcode",
+  "version": "1.0.0",
+  "description": "AppSheet Kakao Postcode Bridge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
