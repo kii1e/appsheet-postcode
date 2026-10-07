@@ -18,7 +18,8 @@ app.get('/postcode', (req, res) => {
     <div id="layer" style="width:100vw; height:100vh;"></div>
 
     <script>
-        const appName = "${appName || ''}";
+        // URLEncode되어 들어온 appName을 디코딩
+        const appName = decodeURIComponent("${appName || ''}");
         const tableName = "${tableName || ''}";
 
         new daum.Postcode({
@@ -31,8 +32,9 @@ app.get('/postcode', (req, res) => {
                         "우편번호": zonecode,
                         "도로명주소": roadAddress
                     }));
-
-                    const redirectUrl = "https://www.appsheet.com/start/" + appName + 
+                    
+                    // AppSheet 딥링크 URL 세팅
+                    const redirectUrl = "https://www.appsheet.com/start/" + encodeURIComponent(appName) + 
                         "#control=" + tableName + "_Form" +
                         "&defaults=" + defaults;
 
